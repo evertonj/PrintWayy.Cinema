@@ -1,11 +1,10 @@
 ﻿using MediatR;
-using PrintWayy.Cinema.Domain.Commands.Responses;
+using PrintWayy.Cinema.Domain.Commands.Responses.Film;
 
-namespace PrintWayy.Cinema.Domain.Commands.Requests
+namespace PrintWayy.Cinema.Domain.Commands.Requests.Film
 {
-    public class UpdateFilmRequest:IRequest<UpdateFilmResponse>
+    public class CreateFilmRequest : IRequest<CreateFilmResponse>
     {
-        public Guid Id { get; set; }
         public string ImagePath { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{789D2667-756F-4EE8-8541-2F9EC3F2E5FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintWayy.Cinema.Infra.Data", "PrintWayy.Cinema.Infra.Data\PrintWayy.Cinema.Infra.Data.csproj", "{E64A7F21-26C9-43EF-A3BA-81C50CC147AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintWayy.Cinema.Infra.Data", "PrintWayy.Cinema.Infra.Data\PrintWayy.Cinema.Infra.Data.csproj", "{E64A7F21-26C9-43EF-A3BA-81C50CC147AF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{4BCA3CFD-4559-454F-8D57-E2D976104158}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

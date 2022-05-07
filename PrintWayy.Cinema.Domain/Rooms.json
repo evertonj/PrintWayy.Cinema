@@ -1,0 +1,14 @@
+﻿[
+  {
+    "Name": "Sala 1",
+    "NumberSeats": 40
+  },
+  {
+    "Name": "Sala 2",
+    "NumberSeats": 50
+  },
+  {
+    "Name": "Sala 3",
+    "NumberSeats": 60
+  }
+]

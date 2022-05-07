@@ -1,11 +1,9 @@
 ﻿using MediatR;
-using PrintWayy.Cinema.Domain.Commands.Requests;
-using PrintWayy.Cinema.Domain.Commands.Responses;
+using PrintWayy.Cinema.Domain.Commands.Requests.Film;
+using PrintWayy.Cinema.Domain.Commands.Responses.Film;
 using PrintWayy.Cinema.Domain.Interfaces;
 using PrintWayy.Cinema.Domain.Models;
-using PrintWayy.Cinema.Domain.Requests;
-using PrintWayy.Cinema.Domain.Responses;
-using PrintWayy.Cinema.Domain.Validation.Interfaces;
+using PrintWayy.Cinema.Domain.Validations;
 
 namespace PrintWayy.Cinema.Domain.Handlers
 {
@@ -14,19 +12,28 @@ namespace PrintWayy.Cinema.Domain.Handlers
         IRequestHandler<UpdateFilmRequest, UpdateFilmResponse>
     {
         private readonly IFilmRepository _filmRepository;
-        private readonly IValidationCreateFilm _validationCreateFilm;
+        private readonly ISessionRepository _sessionRepository;
+        private readonly ValidationFilm _validationFilm;
 
-        public FilmHandler(IFilmRepository filmeRepository, IValidationCreateFilm validationCreateFilm)
+        public FilmHandler(IFilmRepository filmeRepository, ISessionRepository sessionRepository)
         {
             _filmRepository = filmeRepository;
-            _validationCreateFilm = validationCreateFilm;
+            _sessionRepository = sessionRepository;
+            _validationFilm = new ValidationFilm(_filmRepository);
         }
 
         public Task<CreateFilmResponse> Handle(CreateFilmRequest request, CancellationToken cancellationToken)
         {
             //Filmes não podem ter títulos repetidos.
-            var film = _filmRepository.GetFilmByTitle(request.Title);
-            if (film != null)
+            if (_validationFilm.ValidateCreateFilmResponse(request.Title))
+                return Task.FromResult(new CreateFilmResponse { ErrorMessage = "Filmes não podem ter títulos repetidos." });
+
+            try
+            {
+                var film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);
+
+                _filmRepository.Create(film);
+
                 return Task.FromResult(new CreateFilmResponse
                 {
                     Id = film.Id,
@@ -35,26 +42,25 @@ namespace PrintWayy.Cinema.Domain.Handlers
                     Description = film.Description,
                     Duration = film.Duration
                 });
-
-            //Cria o filme
-            film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);
-
-            //Salva no repositório
-            _filmRepository.Create(film);
-
-            return Task.FromResult(new CreateFilmResponse
+            }
+            catch (Exception ex)
             {
-                Id = film.Id,
-                ImagePath = film.ImagePath,
-                Title = film.Title,
-                Description = film.Description,
-                Duration = film.Duration
-            });
+                return Task.FromResult(new CreateFilmResponse { ErrorMessage = ex.Message });
+            }
         }
 
         public Task<DeleteFilmResponse> Handle(DeleteFilmRequest request, CancellationToken cancellationToken)
         {
+            var film = _filmRepository.FindById(request.Id);
+
+            if (film == null)
+                return Task.FromResult(new DeleteFilmResponse { Success = false, ErrorMessage = "Filme não encontrado na base de dados." });
+
             //Um filme só pode ser excluído se não houver sessões vinculadas.
+            var session = _sessionRepository.GetSessionByFilm(film);
+
+            if (session != null)
+                return Task.FromResult(new DeleteFilmResponse { Success = false, ErrorMessage = "Não é possivel remover o Filme que está vinculado a uma Sessão." });
 
             _filmRepository.Delete(request.Id);
 
@@ -64,8 +70,15 @@ namespace PrintWayy.Cinema.Domain.Handlers
         public Task<UpdateFilmResponse> Handle(UpdateFilmRequest request, CancellationToken cancellationToken)
         {
             //Filmes não podem ter títulos repetidos.
-            var film = _filmRepository.GetFilmByTitle(request.Title);
-            if (film != null)
+            if (_validationFilm.ValidateCreateFilmResponse(request.Title))
+                return Task.FromResult(new UpdateFilmResponse { ErrorMessage = "Filmes não podem ter títulos repetidos." });
+
+            try
+            {
+                var film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);
+
+                _filmRepository.Update(film);
+
                 return Task.FromResult(new UpdateFilmResponse
                 {
                     Id = film.Id,
@@ -74,19 +87,11 @@ namespace PrintWayy.Cinema.Domain.Handlers
                     Description = film.Description,
                     Duration = film.Duration
                 });
-
-            film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);
-
-            _filmRepository.Update(film);
-
-            return Task.FromResult(new UpdateFilmResponse
+            }
+            catch (Exception ex)
             {
-                Id = film.Id,
-                ImagePath = film.ImagePath,
-                Title = film.Title,
-                Description = film.Description,
-                Duration = film.Duration
-            });
+                return Task.FromResult(new UpdateFilmResponse { ErrorMessage = ex.Message });
+            }
         }
     }
 }

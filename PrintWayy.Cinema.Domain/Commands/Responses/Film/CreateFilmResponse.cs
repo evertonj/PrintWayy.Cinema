@@ -1,11 +1,12 @@
-﻿namespace PrintWayy.Cinema.Domain.Commands.Responses
+﻿namespace PrintWayy.Cinema.Domain.Commands.Responses.Film
 {
-    public class UpdateFilmResponse
+    public class CreateFilmResponse
     {
         public Guid Id { get; set; }
         public string ImagePath { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public TimeSpan Duration { get; set; }
+        public string ErrorMessage { get; internal set; }
     }
 }
