@@ -26,7 +26,7 @@ namespace PrintWayy.Cinema.Domain.Handlers
         {
             //Filmes não podem ter títulos repetidos.
             if (_validationFilm.ValidateCreateFilmResponse(request.Title))
-                return Task.FromResult(new CreateFilmResponse { ErrorMessage = "Filmes não podem ter títulos repetidos." });
+                return Task.FromResult(new CreateFilmResponse { ErrorMessage = Film.NaoDeveTerTituloRepetido });
 
             try
             {
@@ -54,13 +54,12 @@ namespace PrintWayy.Cinema.Domain.Handlers
             var film = _filmRepository.FindById(request.Id);
 
             if (film == null)
-                return Task.FromResult(new DeleteFilmResponse { Success = false, ErrorMessage = "Filme não encontrado na base de dados." });
+                return Task.FromResult(new DeleteFilmResponse { Success = false, ErrorMessage = Film.FilmeNaoEncontrado });
 
             //Um filme só pode ser excluído se não houver sessões vinculadas.
             var session = _sessionRepository.GetSessionByFilm(film);
-
             if (session != null)
-                return Task.FromResult(new DeleteFilmResponse { Success = false, ErrorMessage = "Não é possivel remover o Filme que está vinculado a uma Sessão." });
+                return Task.FromResult(new DeleteFilmResponse { Success = false, ErrorMessage = Film.NaoRemoveFilmeVinculadoSessao });
 
             _filmRepository.Delete(request.Id);
 
@@ -69,10 +68,6 @@ namespace PrintWayy.Cinema.Domain.Handlers
 
         public Task<UpdateFilmResponse> Handle(UpdateFilmRequest request, CancellationToken cancellationToken)
         {
-            //Filmes não podem ter títulos repetidos.
-            if (_validationFilm.ValidateCreateFilmResponse(request.Title))
-                return Task.FromResult(new UpdateFilmResponse { ErrorMessage = "Filmes não podem ter títulos repetidos." });
-
             try
             {
                 var film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);

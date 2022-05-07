@@ -23,10 +23,10 @@ namespace PrintWayy.Cinema.Domain.Validations
                 var betweenEndTime = endTime >= session.StartTime && endTime <= session.EndTime;
                 if (sameRoom && sameDate && betweenStartTime && betweenEndTime)
                 {
-                    return false;
+                    return true;
                 }
             }
-            return true;
+            return false;
         }
 
         public bool ValidateTimeOfRemove(DateTime date)

@@ -2,16 +2,24 @@
 {
     public class Film
     {
+        public const string DeveConterUmCaminhoDeImagemValido = "Por favor forneça um caminho de imagem valido.";
+        public const string DeveInformarTitulo = "O Titulo precisa ser informado.";
+        public const string DeveInformarDescricao = "Por favor informe uma descrição.";
+        public const string DeveInformarDuracao = "Por favor informe a duração.";
+        public const string NaoDeveTerTituloRepetido = "Filmes não podem ter títulos repetidos.";
+        public const string FilmeNaoEncontrado = "Filme não encontrado na base de dados.";
+        public const string NaoRemoveFilmeVinculadoSessao = "Não é possivel remover o Filme que está vinculado a uma Sessão.";
+
         public Film(string imagePath, string title, string description, TimeSpan duration)
         {
             if (!File.Exists(imagePath))
-                throw new ArgumentNullException("Por favor forneça um caminho de imagem valido.");
+                throw new ArgumentException(DeveConterUmCaminhoDeImagemValido);
             if (string.IsNullOrEmpty(title))
-                throw new ArgumentNullException("O Titulo precisa ser informado.");
+                throw new ArgumentException(DeveInformarTitulo);
             if (string.IsNullOrEmpty(description))
-                throw new ArgumentNullException("Por favor informe uma descrição.");
-            if (duration.Seconds > 0)
-                throw new ArgumentException("Por favor informe a duração.");
+                throw new ArgumentException(DeveInformarDescricao);
+            if (duration.Ticks <= 0)
+                throw new ArgumentException(DeveInformarDuracao);
             Id = Guid.NewGuid();
             ImagePath = imagePath;
             Title = title;

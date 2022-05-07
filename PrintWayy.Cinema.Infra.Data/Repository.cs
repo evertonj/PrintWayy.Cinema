@@ -17,7 +17,7 @@ namespace PrintWayy.Cinema.Infra.Data
         public virtual TEntity Create(TEntity entity)
         {
             var newId = Collection.Insert(entity);
-            return Collection.FindById(newId.AsInt32);
+            return Collection.FindById(newId.AsGuid);
         }
 
         public virtual IEnumerable<TEntity> All()

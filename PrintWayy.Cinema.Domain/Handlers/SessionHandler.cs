@@ -11,13 +11,11 @@ namespace PrintWayy.Cinema.Domain.Handlers
         IRequestHandler<DeleteSessionRequest, DeleteSessionResponse>
     {
         private readonly ISessionRepository _sessionRepository;
-        private readonly IFilmRepository _filmRepository;
         private readonly ValidationSession _validationSession;
 
-        public SessionHandler(ISessionRepository sessionRepository, IFilmRepository filmRepository)
+        public SessionHandler(ISessionRepository sessionRepository)
         {
             _sessionRepository = sessionRepository;
-            _filmRepository = filmRepository;
             _validationSession = new ValidationSession(_sessionRepository);
         }
 
@@ -29,7 +27,7 @@ namespace PrintWayy.Cinema.Domain.Handlers
 
                 //a mesma sala não pode passar dois ou mais filmes ao mesmo tempo.
                 if (_validationSession.ValidateRoom(session.Room, session.Date, session.StartTime, session.EndTime))
-                    return Task.FromResult(new CreateSessionResponse { ErrorMessage = "A Sala esta vinculada a uma sessão neste horário selecionado." });
+                    return Task.FromResult(new CreateSessionResponse { ErrorMessage = Session.SalaVinculadaSessaoMesmoHorario });
 
                 _sessionRepository.Create(session);
 
@@ -58,15 +56,16 @@ namespace PrintWayy.Cinema.Domain.Handlers
             var session = _sessionRepository.FindById(request.Id);
 
             if (session == null)
-                return Task.FromResult(new DeleteSessionResponse { ErrorMessage = "Sessão não encontrada na base de dados." });
+                return Task.FromResult(new DeleteSessionResponse { ErrorMessage = Session.SessaoNaoEncontadaNaBaseDeDados });
 
             //Uma sessão só pode ser removida se faltar 10 dias ou mais para que ela ocorra.
             if (_validationSession.ValidateTimeOfRemove(session.Date))
-                return Task.FromResult(new DeleteSessionResponse { ErrorMessage = "A sessão só pode ser removida se faltar 10 dias ou mais para que ela ocorra." });
+                return Task.FromResult(new DeleteSessionResponse { ErrorMessage = Session.SesssaoNaoPodeSerRemovidaSeFaltar10DiasOuMenos });
 
             _sessionRepository.Delete(session.Id);
 
             return Task.FromResult(new DeleteSessionResponse { Success = true });
         }
+
     }
 }
