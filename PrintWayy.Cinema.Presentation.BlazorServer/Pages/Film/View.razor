@@ -1,5 +1,5 @@
-@page "/film/viewfilm/{id}"
-@inject IFilmService FilmService
+@page "/film/view/{id}"
+@inject IFilmService filmService
 @inject NavigationManager navManager
 @inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
 
@@ -10,28 +10,28 @@
     <tbody>
         <tr>
             <th scope="row">Titulo</th>
-            <td>@film.Title</td>
+            <td>@filmViewModel.Title</td>
         </tr>
         <tr>
             <th scope="row">Descrição</th>
-            <td>@film.Description</td>
+            <td>@filmViewModel.Description</td>
         </tr>
         <tr>
             <th scope="row">Duração</th>
-            <td>@film.Duration</td>
+            <td>@filmViewModel.Duration</td>
         </tr>
         <tr>
             <th scope="row">Imagem</th>
-            <td>@film.ImagePath</td>
+            <td>@filmViewModel.ImagePath</td>
         </tr>
     </tbody>
 </table>
 <div class="form-group">
     @if (PageHistoryState.CanGoBack()){
-        <NavLink href="@PageHistoryState.GetGoBackPage()" class="btn btn-link">Back</NavLink>
+        <NavLink href="@PageHistoryState.GetGoBackPage()" class="btn btn-link">Voltar</NavLink>
     }
     else{
-        <NavLink href="/film/1" class="btn btn-link">Back</NavLink>
+        <NavLink href="/film/1" class="btn btn-link">Voltar</NavLink>
     }
 </div>
 
@@ -39,7 +39,7 @@
     [Parameter]
     public string Id { get; set; }
 
-    Film film = new Film
+    Film filmViewModel = new Film
     {
         ImagePath = "",
         Title = "",
@@ -49,6 +49,6 @@
     
     protected async override Task OnParametersSetAsync()
     {
-       film = await FilmService.GetFilmViewModel(Guid.Parse(Id));
+       filmViewModel = await filmService.GetFilmViewModel(Guid.Parse(Id));
     }
 }

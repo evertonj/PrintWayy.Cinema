@@ -1,4 +1,4 @@
-@page "/film/updatefilm/{id}"
+@page "/film/update/{id}"
 @inject IFilmService filmeService
 @inject IAlertService AlertService
 @inject NavigationManager navManager
@@ -7,7 +7,7 @@
 <h1>Edit Person</h1>
 <br/>
 
-<Form ButtonText="Atualizar Filme" film="@film" loading="@loading"
+<Form ButtonText="Atualizar Filme" filmViewModel="@filmViewModel" loading="@loading"
             OnValidSubmit="@UpdateFilm" />
 
 @code {
@@ -16,7 +16,7 @@
     [Parameter]
     public string Id { get; set; }
 
-    Film film = new Film
+    Film filmViewModel = new Film
     {
         ImagePath = "",
         Title = "",
@@ -26,7 +26,7 @@
     
     protected async override Task OnParametersSetAsync()
     {
-       film = await filmeService.GetFilmViewModel(Guid.Parse(Id));
+       filmViewModel = await filmeService.GetFilmViewModel(Guid.Parse(Id));
     }
 
     async Task UpdateFilm()
@@ -34,7 +34,7 @@
         loading = true;
         try
         {
-            await filmeService.UpdateFilmViewModel(film);
+            await filmeService.UpdateFilmViewModel(filmViewModel);
             AlertService.Success("Filme Atualizado com sucesso", keepAfterRouteChange: true);
             if (PageHistoryState.CanGoBack()){
                 navManager.NavigateTo(PageHistoryState.GetGoBackPage());

@@ -51,8 +51,8 @@ else
                     <td>@filmViewModel.Duration</td>
                     <td>@filmViewModel.ImagePath</td>
                     <td style="white-space: nowrap">
-                        <NavLink href="@($"/filmViewModel/viewfilmViewModel/{filmViewModel.Id}")" class="oi oi-eye text-primary mr-3 nounderline"></NavLink>
-                            <NavLink href="@($"/filmViewModel/updatefilmViewModel/{filmViewModel.Id}")" class="oi oi-pencil text-warning mr-2 nounderline"></NavLink>
+                        <NavLink href="@($"/film/view/{filmViewModel.Id}")" class="oi oi-eye text-primary mr-3 nounderline"></NavLink>
+                            <NavLink href="@($"/film/update/{filmViewModel.Id}")" class="oi oi-pencil text-warning mr-2 nounderline"></NavLink>
                             
                                 @if (filmViewModel.IsDeleting) 
                                 {
