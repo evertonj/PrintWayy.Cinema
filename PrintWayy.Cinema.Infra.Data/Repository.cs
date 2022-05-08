@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using Microsoft.Extensions.Configuration;
 using PrintWayy.Cinema.Domain.Interfaces;
 
 namespace PrintWayy.Cinema.Infra.Data
@@ -8,10 +9,23 @@ namespace PrintWayy.Cinema.Infra.Data
         public ILiteDatabase DB { get; }
         public ILiteCollection<TEntity> Collection { get; }
 
-        protected Repository(ILiteDatabase db)
+        protected Repository(IConfiguration? configuration)
         {
-            DB = db;
-            Collection = db.GetCollection<TEntity>();
+            var pass = configuration?["LiteDB:RepositoryKey"];
+            if(pass == null)
+                DB = new LiteDatabase(":memory:");
+            else
+            {
+                var connectionString = new ConnectionString
+                {
+                    Filename = "cinema.db",
+                    Connection = ConnectionType.Shared,
+                    Password = pass
+                };
+                DB = new LiteDatabase(connectionString);
+            }
+
+            Collection = DB.GetCollection<TEntity>();
         }
 
         public virtual TEntity Create(TEntity entity)

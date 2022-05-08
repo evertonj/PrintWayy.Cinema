@@ -6,12 +6,24 @@ namespace PrintWayy.Cinema.Domain.Commands.Requests.Session
 {
     public class CreateSessionRequest: IRequest<CreateSessionResponse>
     {
+        public CreateSessionRequest() { }
+        public CreateSessionRequest(DateTime date, string startTime, decimal entryValue, AnimationType animationType, AudioType audioType, Guid filmId, string roomName)
+        {
+            Date = date;
+            StartTime = startTime;
+            EntryValue = entryValue;
+            AnimationType = animationType;
+            AudioType = audioType;
+            FilmId = filmId;
+            RoomName = roomName;
+        }
+
         public DateTime Date { get; set; }
-        public TimeSpan StartTime { get; set; }
+        public string StartTime { get; set; }
         public decimal EntryValue { get; set; }
         public AnimationType AnimationType { get; set; }
         public AudioType AudioType { get; set; }
-        public Models.Film Film { get; set; }
-        public Room Room { get; set; }
+        public Guid FilmId { get; set; }
+        public string RoomName { get; set; }
     }
 }

@@ -9,6 +9,7 @@
         public const string NaoDeveTerTituloRepetido = "Filmes não podem ter títulos repetidos.";
         public const string FilmeNaoEncontrado = "Filme não encontrado na base de dados.";
         public const string NaoRemoveFilmeVinculadoSessao = "Não é possivel remover o Filme que está vinculado a uma Sessão.";
+        public const string DURATION_PATTERN = @"hh\:mm\:ss";
 
         public Film(string imagePath, string title, string description, TimeSpan duration)
         {
@@ -25,6 +26,11 @@
             Title = title;
             Description = description;
             Duration = duration;
+        }
+
+        public Film(Guid id, string imagePath, string title, string description, TimeSpan duration):this(imagePath,title, description, duration)
+        {
+            Id = id;
         }
 
         public Guid Id { get; private set; }

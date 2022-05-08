@@ -1,4 +1,4 @@
-﻿using LiteDB;
+﻿using Microsoft.Extensions.Configuration;
 using PrintWayy.Cinema.Domain.Interfaces;
 using PrintWayy.Cinema.Domain.Models;
 
@@ -6,7 +6,7 @@ namespace PrintWayy.Cinema.Infra.Data
 {
     public class SessionRepository : Repository<Session>, ISessionRepository
     {
-        public SessionRepository(ILiteDatabase db) : base(db)
+        public SessionRepository(IConfiguration? configuration) : base(configuration)
         {
         }
 

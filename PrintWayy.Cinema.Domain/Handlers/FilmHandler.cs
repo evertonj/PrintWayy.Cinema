@@ -30,17 +30,21 @@ namespace PrintWayy.Cinema.Domain.Handlers
 
             try
             {
-                var film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);
+                var time = request.Duration.Split(':');
+                var duration = new TimeSpan(Convert.ToUInt16(time[0]), Convert.ToUInt16(time[1]), Convert.ToUInt16(time[2]));
+
+                var film = new Film(request.ImagePath, request.Title, request.Description, duration);
 
                 _filmRepository.Create(film);
 
                 return Task.FromResult(new CreateFilmResponse
                 {
+                    Success = true,
                     Id = film.Id,
                     ImagePath = film.ImagePath,
                     Title = film.Title,
                     Description = film.Description,
-                    Duration = film.Duration
+                    Duration = film.Duration.ToString(Film.DURATION_PATTERN),
                 });
             }
             catch (Exception ex)
@@ -70,17 +74,29 @@ namespace PrintWayy.Cinema.Domain.Handlers
         {
             try
             {
-                var film = new Film(request.ImagePath, request.Title, request.Description, request.Duration);
-
+                TimeSpan duration = TimeSpan.Zero;
+                try
+                {
+                    var time = request.Duration.Split(':');
+                    duration = new TimeSpan(Convert.ToUInt16(time[0]), Convert.ToUInt16(time[1]), Convert.ToUInt16(time[2]));
+                }
+                catch (Exception)
+                {
+                    Task.FromResult(new UpdateFilmResponse { ErrorMessage = Film.DeveInformarDuracao });
+                }
+               
+                var film = new Film(request.Id, request.ImagePath, request.Title, request.Description, duration);
+                
                 _filmRepository.Update(film);
 
                 return Task.FromResult(new UpdateFilmResponse
                 {
+                    Success = true,
                     Id = film.Id,
                     ImagePath = film.ImagePath,
                     Title = film.Title,
                     Description = film.Description,
-                    Duration = film.Duration
+                    Duration = film.Duration.ToString(Film.DURATION_PATTERN),
                 });
             }
             catch (Exception ex)

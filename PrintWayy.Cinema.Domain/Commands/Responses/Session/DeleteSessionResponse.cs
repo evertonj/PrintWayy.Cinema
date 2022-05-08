@@ -1,8 +1,6 @@
 ﻿namespace PrintWayy.Cinema.Domain.Commands.Responses.Session
 {
-    public class DeleteSessionResponse
+    public class DeleteSessionResponse:ResultResponse
     {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
     }
 }

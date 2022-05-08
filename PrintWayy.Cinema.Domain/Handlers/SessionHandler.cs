@@ -11,11 +11,13 @@ namespace PrintWayy.Cinema.Domain.Handlers
         IRequestHandler<DeleteSessionRequest, DeleteSessionResponse>
     {
         private readonly ISessionRepository _sessionRepository;
+        private readonly IFilmRepository _filmRepository;
         private readonly ValidationSession _validationSession;
 
-        public SessionHandler(ISessionRepository sessionRepository)
+        public SessionHandler(ISessionRepository sessionRepository, IFilmRepository filmRepository)
         {
             _sessionRepository = sessionRepository;
+            _filmRepository = filmRepository;
             _validationSession = new ValidationSession(_sessionRepository);
         }
 
@@ -23,7 +25,29 @@ namespace PrintWayy.Cinema.Domain.Handlers
         {
             try
             {
-                var session = new Session(request.Date, request.StartTime, request.EntryValue, request.AnimationType, request.AudioType, request.Film, request.Room);
+                //Convert o StartTime
+                TimeSpan startTime;
+                try
+                {
+                    var time = request.StartTime.Split(':');
+                    startTime = new TimeSpan(Convert.ToUInt16(time[0]), Convert.ToUInt16(time[1]), Convert.ToUInt16(time[2]));
+                }
+                catch (Exception)
+                {
+                    return Task.FromResult(new CreateSessionResponse { ErrorMessage = "Hora de início da sessão com formato incorreto." });
+                }
+
+                //Busca o filme
+                Film film = _filmRepository.FindById(request.FilmId);
+                if (film == null)
+                    return Task.FromResult(new CreateSessionResponse { ErrorMessage = "Id do filme informado não corresponde a nenhum filme cadastrado no sistema." });
+
+                //Busca a sala
+                var room = Room.GetRooms().Find(r=>r.Name == request.RoomName);
+                if (room == null)
+                    return Task.FromResult(new CreateSessionResponse { ErrorMessage = "A sala informada não corresponde a nenhuma sala cadastrada no sistema." });
+
+                var session = new Session(request.Date, startTime, request.EntryValue, request.AnimationType, request.AudioType, film, room);
 
                 //a mesma sala não pode passar dois ou mais filmes ao mesmo tempo.
                 if (_validationSession.ValidateRoom(session.Room, session.Date, session.StartTime, session.EndTime))
@@ -33,9 +57,10 @@ namespace PrintWayy.Cinema.Domain.Handlers
 
                 return Task.FromResult(new CreateSessionResponse
                 {
+                    Success = true,
                     Id = session.Id,
                     Date = session.Date,
-                    StartTime = session.StartTime,
+                    StartTime = session.StartTime.ToString(Film.DURATION_PATTERN),
                     AnimationType = session.AnimationType,
                     AudioType = session.AudioType,
                     Film = session.Film,

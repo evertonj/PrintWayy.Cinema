@@ -1,0 +1,44 @@
+@page "/film/createfilm"
+@inject IFilmService FilmService
+@inject IAlertService AlertService
+@inject NavigationManager navManager
+@inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
+
+<h1>Create Film</h1>
+<br/>
+
+<Form ButtonText="Adicionar Filme" filmViewModel="@filmViewModel" loading="@loading"
+            OnValidSubmit="@CreateFilm" />
+
+@code {
+    bool loading = false;
+    
+    Film filmViewModel = new Film
+    {
+        ImagePath = "",
+        Title = "",
+        Description = "",
+        Duration = "",
+    };
+    private async Task CreateFilm()
+    {
+        loading = true;
+        try
+        {
+            await FilmService.AddFilmViewModel(filmViewModel);
+            AlertService.Success("Filme cadastrado com sucesso.", keepAfterRouteChange: true);
+            if (PageHistoryState.CanGoBack()){
+                navManager.NavigateTo(PageHistoryState.GetGoBackPage());
+            }
+            else{
+                navManager.NavigateTo("/film/1");
+            } 
+        }
+        catch (Exception ex)
+        {
+            AlertService.Error(ex.Message);
+            loading = false;
+            StateHasChanged();
+        }
+    }
+}

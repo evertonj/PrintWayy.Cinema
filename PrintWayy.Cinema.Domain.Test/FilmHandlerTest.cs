@@ -1,5 +1,4 @@
 using FluentAssertions;
-using LiteDB;
 using PrintWayy.Cinema.Domain.Commands.Requests.Film;
 using PrintWayy.Cinema.Domain.Commands.Requests.Session;
 using PrintWayy.Cinema.Domain.Handlers;
@@ -13,26 +12,26 @@ namespace PrintWayy.Cinema.Domain.Test
 {
     public class FilmHandlerTest
     {
-        private ILiteDatabase db;
         private IFilmRepository filmRepository;
         private ISessionRepository sessionRepository;
         private FilmHandler filmHandler;
         private SessionHandler sessionHandler;
         private CreateSessionRequest createSession = ObjectMother.CreateSessionRequestObject;
+        private CreateFilmRequest createFilm = ObjectMother.CreateFilmRequestObject;
         public FilmHandlerTest()
         {
-            db = new LiteDatabase(":memory:");
-            filmRepository = new FilmRepository(db);
-            sessionRepository = new SessionRepository(db);
+            filmRepository = new FilmRepository(null);
+            sessionRepository = new SessionRepository(null);
             filmHandler = new FilmHandler(filmRepository, sessionRepository);
-            sessionHandler = new SessionHandler(sessionRepository);
+            sessionHandler = new SessionHandler(sessionRepository, filmRepository);
         }
 
         [Fact]
         public void DeveConterUmCaminhoDeImagemValido()
         {
             //arrange
-            var createRequest = new CreateFilmRequest();
+            var createRequest = createFilm;
+            createRequest.ImagePath = string.Empty;
             //act
             var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -43,7 +42,8 @@ namespace PrintWayy.Cinema.Domain.Test
         public void DeveInformarTitulo()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png" };
+            var createRequest = createFilm;
+            createFilm.Title = string.Empty;
             //act
             var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -54,7 +54,8 @@ namespace PrintWayy.Cinema.Domain.Test
         public void DeveInformarDescricao()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação" };
+            var createRequest = createFilm;
+            createFilm.Description = string.Empty;
             //act
             var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -65,7 +66,8 @@ namespace PrintWayy.Cinema.Domain.Test
         public void DeveInformarDuracao()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação", Description = "A História do pai da informática." };
+            var createRequest = createFilm;
+            createRequest.Duration = "00:00:00";
             //act
             var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -75,17 +77,15 @@ namespace PrintWayy.Cinema.Domain.Test
         [Fact]
         public void DeveCadastrarComSucesso()
         {
-            //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
             //act
-            var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
+            var result = filmHandler.Handle(createFilm, new System.Threading.CancellationToken()).Result;
             //assert
             result.ErrorMessage.Should().BeNull();
             result.Id.Should().NotBe(Guid.Empty);
-            result.ImagePath.Should().Be(createRequest.ImagePath);
-            result.Title.Should().Be(createRequest.Title);
-            result.Description.Should().Be(createRequest.Description);
-            result.Duration.Should().Be(createRequest.Duration);
+            result.ImagePath.Should().Be(createFilm.ImagePath);
+            result.Title.Should().Be(createFilm.Title);
+            result.Description.Should().Be(createFilm.Description);
+            result.Duration.Should().Be(createFilm.Duration);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace PrintWayy.Cinema.Domain.Test
         {
             //arrange
             DeveCadastrarComSucesso();
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm;
             //act
             var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -115,7 +115,7 @@ namespace PrintWayy.Cinema.Domain.Test
         public void NaoRemoveFilmeVinculadoSessao()
         {
             //arrange
-            createSession.Film = filmRepository.Create(createSession.Film);
+            createSession.FilmId = filmRepository.Create(ObjectMother.FilmObject).Id;
             var response = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
             var deleteRequest = new DeleteFilmRequest() { Id = response.Film.Id };
             //act
@@ -128,7 +128,7 @@ namespace PrintWayy.Cinema.Domain.Test
         public void FilmeRemovidoSucesso()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm;
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             var deleteRequest = new DeleteFilmRequest() { Id = createResponse.Id };
             //act
@@ -142,9 +142,9 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateDeveConterUmCaminhoDeImagemValido()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm;
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
-            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "naoTem.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "naoTem.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0).ToString(Film.DURATION_PATTERN) };
             //act
             var result = filmHandler.Handle(updateRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -155,9 +155,9 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateDeveInformarTitulo()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm;
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
-            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0).ToString(Film.DURATION_PATTERN) };
             //act
             var result = filmHandler.Handle(updateRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -168,9 +168,9 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateDeveInformarDescricao()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm;
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
-            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "", Duration = new System.TimeSpan(1, 54, 0) };
+            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "", Duration = new System.TimeSpan(1, 54, 0).ToString(Film.DURATION_PATTERN) };
             //act
             var result = filmHandler.Handle(updateRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -181,7 +181,7 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateDeveInformarDuracao()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm; 
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "Conhecer a história do pai da informática é essencial" };
             //act
@@ -194,14 +194,14 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateFilmeSucesso()
         {
             //arrange
-            var createRequest = new CreateFilmRequest() { ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 2", Description = "A História do pai da informática.", Duration = new System.TimeSpan(1, 54, 0) };
+            var createRequest = createFilm; 
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
-            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 3", Description = "Conhecer a história do pai da informática é essencial", Duration = new TimeSpan(1, 58, 22) };
+            var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImagePath = "great-place-to-work-pw.png", Title = "O jogo da imitação 3", Description = "Conhecer a história do pai da informática é essencial", Duration = new TimeSpan(1, 58, 22).ToString(Film.DURATION_PATTERN) };
             //act
             var result = filmHandler.Handle(updateRequest, new System.Threading.CancellationToken()).Result;
             //assert
             result.ErrorMessage.Should().BeNull();
-            result.Id.Should().NotBe(updateRequest.Id);
+            result.Id.Should().Be(updateRequest.Id);
             result.ImagePath.Should().Be(updateRequest.ImagePath);
             result.Title.Should().Be(updateRequest.Title);
             result.Description.Should().Be(updateRequest.Description);

@@ -1,8 +1,7 @@
 ﻿namespace PrintWayy.Cinema.Domain.Commands.Responses.Film
 {
-    public class DeleteFilmResponse
+    public class DeleteFilmResponse:ResultResponse
     {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
+       
     }
 }

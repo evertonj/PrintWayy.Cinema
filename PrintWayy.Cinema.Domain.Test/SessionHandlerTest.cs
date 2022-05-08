@@ -12,16 +12,16 @@ namespace PrintWayy.Cinema.Domain.Test
 {
     public class SessionHandlerTest
     {
-        private ILiteDatabase db;
         private ISessionRepository sessionRepository;
+        private IFilmRepository filmRepository;
         private SessionHandler sessionHandler;
         private CreateSessionRequest createSession = ObjectMother.CreateSessionRequestObject;
 
         public SessionHandlerTest()
         {
-            db = new LiteDatabase(":memory:");
-            sessionRepository = new SessionRepository(db);
-            sessionHandler = new SessionHandler(sessionRepository);
+            sessionRepository = new SessionRepository(null);
+            filmRepository = new FilmRepository(null);
+            sessionHandler = new SessionHandler(sessionRepository,filmRepository);
         }
 
         [Fact]
@@ -29,6 +29,9 @@ namespace PrintWayy.Cinema.Domain.Test
         {
             //arrange
             createSession.Date = DateTime.Now.AddDays(-2);
+            var film = ObjectMother.FilmObject;
+            filmRepository.Update(film);
+            createSession.FilmId = film.Id;
             //act
             var result = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
             //assert
@@ -41,6 +44,9 @@ namespace PrintWayy.Cinema.Domain.Test
         {
             //arrange
             createSession.EntryValue = new decimal(-1);
+            var film = ObjectMother.FilmObject;
+            filmRepository.Update(film);
+            createSession.FilmId = film.Id;
             //act
             var result = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
             //assert
@@ -51,17 +57,22 @@ namespace PrintWayy.Cinema.Domain.Test
         public void SessaoCriadaComSucesso()
         {
             //arrange
+            var film = ObjectMother.FilmObject;
+            filmRepository.Update(film);
+            createSession.FilmId = film.Id;
+            //act
             var result = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
+            var session = sessionRepository.FindById(result.Id);
             //assert
             result.ErrorMessage.Should().BeNull();
             result.Date.Should().Be(createSession.Date);
             result.StartTime.Should().Be(createSession.StartTime);
-            result.EndTime.Should().Be(createSession.StartTime.Add(createSession.Film.Duration));
-            result.Film.Id.Should().Be(createSession.Film.Id);
+            result.EndTime.Should().Be(session.EndTime);
+            result.Film.Id.Should().Be(createSession.FilmId);
             result.EntryValue.Should().Be(createSession.EntryValue);
             result.AudioType.Should().Be(createSession.AudioType);
             result.AnimationType.Should().Be(createSession.AnimationType);
-            result.Room.Should().Be(createSession.Room);
+            result.Room.Name.Should().Be(createSession.RoomName);
         }
 
         [Fact]
@@ -69,6 +80,9 @@ namespace PrintWayy.Cinema.Domain.Test
         {
             //arrange
             SessaoCriadaComSucesso();
+            var film = ObjectMother.FilmObject;
+            filmRepository.Update(film);
+            createSession.FilmId = film.Id;
             //act
             var result = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
             //assert
@@ -90,6 +104,9 @@ namespace PrintWayy.Cinema.Domain.Test
         public void SesssaoNaoPodeSerRemovidaSeFaltar10DiasOuMenos()
         {
             //arrange
+            var film = ObjectMother.FilmObject;
+            filmRepository.Update(film);
+            createSession.FilmId = film.Id;
             var response = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
             var deleteSessionRequest = new DeleteSessionRequest { Id = response.Id };
             //act
@@ -103,6 +120,9 @@ namespace PrintWayy.Cinema.Domain.Test
         {
             //arrange
             createSession.Date = DateTime.Now.AddDays(15);
+            var film = ObjectMother.FilmObject;
+            filmRepository.Update(film);
+            createSession.FilmId = film.Id;
             var response = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
             var deleteSessionRequest = new DeleteSessionRequest { Id = response.Id };
             //act
