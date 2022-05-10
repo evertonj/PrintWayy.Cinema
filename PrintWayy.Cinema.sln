@@ -5,13 +5,13 @@ VisualStudioVersion = 17.2.32427.441
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintWayy.Cinema.Domain", "PrintWayy.Cinema.Domain\PrintWayy.Cinema.Domain.csproj", "{BA835D2F-9000-4A49-B663-33C44C5E5842}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{9C535682-6232-4C36-AD70-D588A1AEC6D7}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Presentation", "1 - Presentation", "{9C535682-6232-4C36-AD70-D588A1AEC6D7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{16F20243-AB99-4CED-B09F-BE309F47E3C6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Domain", "3 - Domain", "{16F20243-AB99-4CED-B09F-BE309F47E3C6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{611AD15C-8390-46E5-B1EE-661F8A8D28E5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Service", "2 - Service", "{611AD15C-8390-46E5-B1EE-661F8A8D28E5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infra", "Infra", "{789D2667-756F-4EE8-8541-2F9EC3F2E5FC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Infra", "4 - Infra", "{789D2667-756F-4EE8-8541-2F9EC3F2E5FC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintWayy.Cinema.Infra.Data", "PrintWayy.Cinema.Infra.Data\PrintWayy.Cinema.Infra.Data.csproj", "{E64A7F21-26C9-43EF-A3BA-81C50CC147AF}"
 EndProject
@@ -19,9 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{4BCA3CFD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintWayy.Cinema.Domain.Test", "PrintWayy.Cinema.Domain.Test\PrintWayy.Cinema.Domain.Test.csproj", "{11A90AC3-1064-4772-9B66-A82B3BA70C0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintWayy.Cinema.Service.Api", "PrintWayy.Cinema.Service.Api\PrintWayy.Cinema.Service.Api.csproj", "{784B8BEC-3BA5-45F6-B27D-7592BEF87FD5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintWayy.Cinema.Service.Api", "PrintWayy.Cinema.Service.Api\PrintWayy.Cinema.Service.Api.csproj", "{784B8BEC-3BA5-45F6-B27D-7592BEF87FD5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrintWayy.Cinema.Presentation.BlazorServer", "PrintWayy.Cinema.Presentation.BlazorServer\PrintWayy.Cinema.Presentation.BlazorServer.csproj", "{542DC6B2-1FF9-4BF5-9A57-0BD41B254FD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrintWayy.Cinema.Presentation.BlazorServer", "PrintWayy.Cinema.Presentation.BlazorServer\PrintWayy.Cinema.Presentation.BlazorServer.csproj", "{542DC6B2-1FF9-4BF5-9A57-0BD41B254FD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

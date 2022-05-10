@@ -45,7 +45,7 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromForm] SessionDataModel session)
+        public IActionResult Post(SessionDataModel session)
         {
             try
             {

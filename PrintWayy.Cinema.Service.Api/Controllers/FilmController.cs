@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using PrintWayy.Cinema.Domain.Commands.Requests.Film;
 using PrintWayy.Cinema.Domain.Interfaces;
 using PrintWayy.Cinema.Service.Api.Models;
-using Microsoft.AspNetCore.Hosting;
 
 namespace PrintWayy.Cinema.Service.Api.Controllers
 {
@@ -13,12 +12,10 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
     {
         private readonly IFilmRepository _filmRepository;
         private readonly IMediator _bus;
-        private readonly IWebHostEnvironment _env;
-        public FilmController(IMediator bus, IFilmRepository filmRepository, IWebHostEnvironment env)
+        public FilmController(IMediator bus, IFilmRepository filmRepository)
         {
             _bus = bus;
             _filmRepository = filmRepository;
-            _env = env;
         }
 
         [HttpGet]
@@ -48,7 +45,7 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromForm]FilmDataModel film)
+        public IActionResult Post(FilmDataModel film)
         {
             try
             {
@@ -57,10 +54,8 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                string fileLocation = SaveImage(film);
-
                 var request = new CreateFilmRequest(
-                    fileLocation,
+                    film.ImageBase64,
                     film.Title,
                     film.Description,
                     film.Duration
@@ -78,9 +73,9 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
             }
         }
 
-        
+
         [HttpPut("{id}")]
-        public IActionResult Put(Guid id, [FromForm] FilmDataModel film)
+        public IActionResult Put(FilmDataModel film)
         {
             try
             {
@@ -89,11 +84,9 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
                     return BadRequest(ModelState);
                 }
 
-                string fileLocation = SaveImage(film);
-
                 var request = new UpdateFilmRequest(
-                    id,
-                    fileLocation,
+                    film.Id,
+                    film.ImageBase64,
                     film.Title,
                     film.Description,
                     film.Duration
@@ -130,27 +123,6 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-
-        private string SaveImage(FilmDataModel film)
-        {
-            //Get the complete folder path for storing the profile image inside it.  
-            var path = Path.Combine(_env.ContentRootPath, "FilmImages/");
-
-            //checking if "images" folder exist or not exist then create it
-            if ((!Directory.Exists(path)))
-            {
-                Directory.CreateDirectory(path);
-            }
-            //getting file name and combine with path and save it
-            string filename = film.Image.FileName;
-            using (var fileStream = new FileStream(Path.Combine(path, filename), FileMode.Create))
-            {
-                film.Image.CopyTo(fileStream);
-            }
-            //save folder path 
-            var fileLocation = "FilmImages/" + filename;
-            return fileLocation;
         }
     }
 }

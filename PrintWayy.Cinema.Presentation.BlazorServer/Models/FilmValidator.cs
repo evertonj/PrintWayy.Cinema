@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using PrintWayy.Cinema.Domain.Models;
 
 namespace PrintWayy.Cinema.Presentation.BlazorServer.Models
 {
@@ -12,7 +11,7 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Models
 
             RuleFor(film => film.Title).NotEmpty().WithMessage(Domain.Models.Film.DeveInformarTitulo);
             RuleFor(film => film.Duration).NotEmpty().WithMessage(Domain.Models.Film.DeveInformarDuracao);
-            RuleFor(film => film.ImagePath).NotEmpty().WithMessage(Domain.Models.Film.DeveConterUmCaminhoDeImagemValido);
+            RuleFor(film => film.ImageBase64).NotEmpty().WithMessage(Domain.Models.Film.DeveConterUmaImageNoFormatoStringBase64);
             RuleFor(film => film.Description).NotEmpty().WithMessage(Domain.Models.Film.DeveInformarDescricao);
         }
     }

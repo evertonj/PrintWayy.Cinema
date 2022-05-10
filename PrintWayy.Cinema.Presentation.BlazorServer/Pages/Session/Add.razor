@@ -1,0 +1,50 @@
+@page "/session/create"
+@inject ISessionService SessionService
+@inject IFilmService FilmeService
+@inject IRoomService RoomService
+@inject IAlertService AlertService
+@inject NavigationManager navManager
+@inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
+
+<h1>Cadastrar Filme</h1>
+<br />
+
+<Form ButtonText="Adicionar Filme" session="@session" films="@films" rooms="@rooms" loading="@loading" OnValidSubmit="@CreateSession" />
+
+@code {
+    bool loading = false;
+
+    IEnumerable<Film> films = new List<Film>();
+    Session session = new Session();
+    List<Domain.Models.Room> rooms = new List<Domain.Models.Room>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        films = await FilmeService.GetAll();
+        rooms = await RoomService.GetAll();
+    }
+
+    private async Task CreateSession()
+    {
+        loading = true;
+        try
+        {
+            await SessionService.AddSession(session);
+            AlertService.Success("Sessão cadastrada com sucesso.", keepAfterRouteChange: true);
+            if (PageHistoryState.CanGoBack())
+            {
+                navManager.NavigateTo(PageHistoryState.GetGoBackPage());
+            }
+            else
+            {
+                navManager.NavigateTo("/session/1");
+            }
+        }
+        catch (Exception ex)
+        {
+            AlertService.Error(ex.Message);
+            loading = false;
+            StateHasChanged();
+        }
+    }
+}

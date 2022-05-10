@@ -33,7 +33,7 @@ namespace PrintWayy.Cinema.Domain.Handlers
                 var time = request.Duration.Split(':');
                 var duration = new TimeSpan(Convert.ToUInt16(time[0]), Convert.ToUInt16(time[1]), Convert.ToUInt16(time[2]));
 
-                var film = new Film(request.ImagePath, request.Title, request.Description, duration);
+                var film = new Film(request.ImageBase64, request.Title, request.Description, duration);
 
                 _filmRepository.Create(film);
 
@@ -41,7 +41,7 @@ namespace PrintWayy.Cinema.Domain.Handlers
                 {
                     Success = true,
                     Id = film.Id,
-                    ImagePath = film.ImagePath,
+                    ImageBase64 = film.ImageBase64,
                     Title = film.Title,
                     Description = film.Description,
                     Duration = film.Duration.ToString(Film.DURATION_PATTERN),
@@ -85,7 +85,7 @@ namespace PrintWayy.Cinema.Domain.Handlers
                     Task.FromResult(new UpdateFilmResponse { ErrorMessage = Film.DeveInformarDuracao });
                 }
                
-                var film = new Film(request.Id, request.ImagePath, request.Title, request.Description, duration);
+                var film = new Film(request.Id, request.ImageBase64, request.Title, request.Description, duration);
                 
                 _filmRepository.Update(film);
 
@@ -93,7 +93,7 @@ namespace PrintWayy.Cinema.Domain.Handlers
                 {
                     Success = true,
                     Id = film.Id,
-                    ImagePath = film.ImagePath,
+                    ImageBase64 = film.ImageBase64,
                     Title = film.Title,
                     Description = film.Description,
                     Duration = film.Duration.ToString(Film.DURATION_PATTERN),

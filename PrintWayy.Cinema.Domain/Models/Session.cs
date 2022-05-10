@@ -14,11 +14,6 @@
 
         public Session(DateTime date, TimeSpan startTime, decimal entryValue, AnimationType animationType, AudioType audioType, Film film, Room room)
         {
-            if (date <= DateTime.Now)
-                throw new Exception(DataSessaoInvalida);
-            if(entryValue < 1)
-                throw new Exception(ValorSessaoInvalido);
-
             Id = Guid.NewGuid();
             Date = date;
             StartTime = startTime;
@@ -31,13 +26,33 @@
         }
 
         public Guid Id { get; private set; }
-        public DateTime Date { get; private set; }
+        private DateTime _date;
+        public DateTime Date
+        {
+            get { return _date; }
+            private set
+            {
+                if (value <= DateTime.Now)
+                    throw new Exception(DataSessaoInvalida);
+                _date = value;
+            }
+        }
         public TimeSpan StartTime { get; private set; }
         public TimeSpan EndTime { get; private set; }
-        public decimal EntryValue { get; private set; }
+        private decimal _entryValue;
+        public decimal EntryValue
+        {
+            get { return _entryValue; }
+            private set
+            {
+                if (value < 1)
+                    throw new Exception(ValorSessaoInvalido);
+                _entryValue = value;
+            }
+        }
         public AnimationType AnimationType { get; private set; }
         public AudioType AudioType { get; private set; }
         public Film Film { get; private set; }
-        public Room Room{ get; private set; }
+        public Room Room { get; private set; }
     }
 }

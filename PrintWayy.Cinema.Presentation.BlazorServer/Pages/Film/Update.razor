@@ -4,29 +4,29 @@
 @inject NavigationManager navManager
 @inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
 
-<h1>Edit Person</h1>
-<br/>
+<h1>Alterar Cadastro do Filme</h1>
+<br />
 
 <Form ButtonText="Atualizar Filme" filmViewModel="@filmViewModel" loading="@loading"
-            OnValidSubmit="@UpdateFilm" />
+      OnValidSubmit="@UpdateFilm" />
 
 @code {
     bool loading = false;
-    
+
     [Parameter]
     public string Id { get; set; }
 
     Film filmViewModel = new Film
-    {
-        ImagePath = "",
-        Title = "",
-        Description = "",
-        Duration = "",
-    };
-    
+        {
+            ImageBase64 = new Domain.Models.ImageData(),
+            Title = "",
+            Description = "",
+            Duration = "",
+        };
+
     protected async override Task OnParametersSetAsync()
     {
-       filmViewModel = await filmeService.GetFilmViewModel(Guid.Parse(Id));
+        filmViewModel = await filmeService.GetFilmViewModel(Guid.Parse(Id));
     }
 
     async Task UpdateFilm()
@@ -34,14 +34,16 @@
         loading = true;
         try
         {
-            await filmeService.UpdateFilmViewModel(filmViewModel);
+            await  filmeService.UpdateFilmViewModel(filmViewModel);
             AlertService.Success("Filme Atualizado com sucesso", keepAfterRouteChange: true);
-            if (PageHistoryState.CanGoBack()){
+            if (PageHistoryState.CanGoBack())
+            {
                 navManager.NavigateTo(PageHistoryState.GetGoBackPage());
             }
-            else{
+            else
+            {
                 navManager.NavigateTo("/film/1");
-            } 
+            }
         }
         catch (Exception ex)
         {

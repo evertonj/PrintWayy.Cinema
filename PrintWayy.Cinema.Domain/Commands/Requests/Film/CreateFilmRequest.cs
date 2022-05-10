@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using PrintWayy.Cinema.Domain.Commands.Responses.Film;
+using PrintWayy.Cinema.Domain.Models;
 
 namespace PrintWayy.Cinema.Domain.Commands.Requests.Film
 {
@@ -10,15 +11,15 @@ namespace PrintWayy.Cinema.Domain.Commands.Requests.Film
 
         }
 
-        public CreateFilmRequest(string imagePath, string title, string description, string duration)
+        public CreateFilmRequest(ImageData imageBase64, string title, string description, string duration)
         {
-            ImagePath = imagePath;
+            ImageBase64 = imageBase64;
             Title = title;
             Description = description;
             Duration = duration;
         }
 
-        public string ImagePath { get; set; }
+        public ImageData ImageBase64 { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Duration { get; set; }

@@ -19,8 +19,4 @@
     <ProjectReference Include="..\PrintWayy.Cinema.Infra.Data\PrintWayy.Cinema.Infra.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="FilmImages\" />
-  </ItemGroup>
-
 </Project>

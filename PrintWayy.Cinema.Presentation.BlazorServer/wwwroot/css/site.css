@@ -10,6 +10,24 @@ h1:focus {
 
 a, .btn-link {
     color: #0071c1;
+    text-decoration: none;
+}
+
+td{
+    text-align: center;
+}
+th{
+    text-align:center;
+}
+
+.div-image {
+    width: 60%;
+    height: 480px;
+}
+
+.img-film {
+    width: 100%;
+    height: 100%;
 }
 
 .btn-primary {

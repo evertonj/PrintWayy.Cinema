@@ -2,6 +2,7 @@
 @using PrintWayy.Cinema.Domain.Models
 @page "/"
 @page "/rooms"
+@inject IRoomService RoomService
 
 <PageTitle>Salas</PageTitle>
 <h1>Salas</h1>
@@ -32,10 +33,10 @@ else
 }
 
 @code {
-    private Room[] rooms;
+    private List<Room> rooms;
 
     protected override async Task OnInitializedAsync()
     {
-        rooms = await RoomService.GetRoomsAsync();
+        rooms = await RoomService.GetAll();
     }
 }

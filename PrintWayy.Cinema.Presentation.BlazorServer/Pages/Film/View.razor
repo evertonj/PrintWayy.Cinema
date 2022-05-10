@@ -3,13 +3,13 @@
 @inject NavigationManager navManager
 @inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
 
-<h1>View Person</h1>
-<br/>
+<h1>Dados do Filme</h1>
+<br />
 
 <table class="table col-md-6">
     <tbody>
         <tr>
-            <th scope="row">Titulo</th>
+            <th scope="row">Título</th>
             <td>@filmViewModel.Title</td>
         </tr>
         <tr>
@@ -22,15 +22,21 @@
         </tr>
         <tr>
             <th scope="row">Imagem</th>
-            <td>@filmViewModel.ImagePath</td>
+            <td>
+                <div class="div-image">
+                    <img class="img-film" src="@filmViewModel.ImageBase64" alt="@filmViewModel.ImageBase64.FileName" />
+                </div>
+            </td>
         </tr>
     </tbody>
 </table>
 <div class="form-group">
-    @if (PageHistoryState.CanGoBack()){
+    @if (PageHistoryState.CanGoBack())
+    {
         <NavLink href="@PageHistoryState.GetGoBackPage()" class="btn btn-link">Voltar</NavLink>
     }
-    else{
+    else
+    {
         <NavLink href="/film/1" class="btn btn-link">Voltar</NavLink>
     }
 </div>
@@ -40,15 +46,15 @@
     public string Id { get; set; }
 
     Film filmViewModel = new Film
-    {
-        ImagePath = "",
-        Title = "",
-        Description = "",
-        Duration = "",
-    };
-    
+        {
+            ImageBase64 = new Domain.Models.ImageData(),
+            Title = "",
+            Description = "",
+            Duration = "",
+        };
+
     protected async override Task OnParametersSetAsync()
     {
-       filmViewModel = await filmService.GetFilmViewModel(Guid.Parse(Id));
+        filmViewModel = await filmService.GetFilmViewModel(Guid.Parse(Id));
     }
 }

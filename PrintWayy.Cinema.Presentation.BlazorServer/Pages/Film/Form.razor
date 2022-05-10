@@ -3,7 +3,7 @@
 <EditForm Model="@filmViewModel" OnSubmit="@OnValidSubmit">
     <FluentValidator TValidator="FilmValidator" />
     <div class="form-group">
-        <label>Titulo :</label>
+        <label>Título :</label>
         <div>
             <InputText @bind-Value="@filmViewModel.Title" class="form-control col-sm-3" />
             <ValidationMessage For="@(() => filmViewModel.Title)" />
@@ -16,7 +16,7 @@
             <ValidationMessage For="@(() => filmViewModel.Description)" />
         </div>
     </div>
-     <div class="form-group">
+    <div class="form-group">
         <label>Duração :</label>
         <div>
             <InputText @bind-Value="@filmViewModel.Duration" class="form-control col-sm-3" placeholder="00:00:00" />
@@ -27,24 +27,26 @@
         <div>
             <label>Imagem :</label>
             <div>
-                <InputFile OnChange="@SelectFile" class="form-control col-sm-3"/>
+                <InputFile OnChange="@Upload" class="form-control col-sm-3" accept="image/*" />
             </div>
         </div>
     </div>
-    <hr/>
+    <hr />
 
     <div class="form-group">
         <button disabled="@loading" class="btn btn-primary">
-            @if (loading) 
+            @if (loading)
             {
                 <span class="spinner-border spinner-border-sm mr-1"></span>
             }
             @ButtonText
         </button>
-        @if (PageHistoryState.CanGoBack()){
+        @if (PageHistoryState.CanGoBack())
+        {
             <NavLink href="@PageHistoryState.GetGoBackPage()" class="btn btn-link">Cancelar</NavLink>
         }
-        else{
+        else
+        {
             <NavLink href="/film/1" class="btn btn-link">Voltar</NavLink>
         }
     </div>
@@ -57,33 +59,22 @@
     [Parameter]
     public string ButtonText { get; set; } = "Cadastrar";
     [Parameter]
-    public bool loading {get; set;} = false;
+    public bool loading { get; set; } = false;
     [Parameter]
     public EventCallback OnValidSubmit { get; set; }
 
-    private StreamContent fileContent;
-    private string fileName;
-    private string imgUrl;
-    private string imageType;
-
-      private async Task SelectFile(InputFileChangeEventArgs  e)
+    private async Task Upload(InputFileChangeEventArgs e)
     {
-       // setting the max size for the file 
-       long maxFileSize = 1024 * 1024 * 10;
-       // Provide the HTTP Content based Stream
-       // and open the stream for reading the uploaded file
-       fileContent = new StreamContent(e.File.OpenReadStream(maxFileSize));
-       // read file name
-       fileName = e.File.Name;
-
-       var fileSize = new byte[e.File.Size];
-       // read the file bytes in sequence
-       await e.File.OpenReadStream().ReadAsync(fileSize);
-       // read file content type
-       imageType = e.File.ContentType;
-       // create URL
-       imgUrl = $"data:{imageType};base64,{Convert.ToBase64String(fileSize)}";
-
-       this.StateHasChanged();
-    } 
+        var file = e.File;
+        var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480);
+        var buf = new byte[resizedFile.Size];
+        using (var stream = resizedFile.OpenReadStream())
+        {
+            await stream.ReadAsync(buf);
+        }
+        filmViewModel.ImageBase64 = new Domain.Models.ImageData();
+        filmViewModel.ImageBase64.ImageBase64 = Convert.ToBase64String(buf);
+        filmViewModel.ImageBase64.ContentType = e.File.ContentType;
+        filmViewModel.ImageBase64.FileName = e.File.Name;
+    }
 }

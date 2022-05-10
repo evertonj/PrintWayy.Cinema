@@ -8,7 +8,6 @@ namespace PrintWayy.Cinema.Infra.Data
     {
         public ILiteDatabase DB { get; }
         public ILiteCollection<TEntity> Collection { get; }
-
         protected Repository(IConfiguration? configuration)
         {
             var pass = configuration?["LiteDB:RepositoryKey"];
@@ -20,7 +19,7 @@ namespace PrintWayy.Cinema.Infra.Data
                 {
                     Filename = "cinema.db",
                     Connection = ConnectionType.Shared,
-                    Password = pass
+                    Password = pass,
                 };
                 DB = new LiteDatabase(connectionString);
             }
@@ -36,7 +35,8 @@ namespace PrintWayy.Cinema.Infra.Data
 
         public virtual IEnumerable<TEntity> All()
         {
-            return Collection.FindAll();
+            var list =  Collection.FindAll().ToList();
+            return list;
         }
 
         public virtual TEntity FindById(Guid id)

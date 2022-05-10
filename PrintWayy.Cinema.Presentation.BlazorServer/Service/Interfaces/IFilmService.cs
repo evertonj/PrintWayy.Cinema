@@ -13,6 +13,6 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service.Interfaces
 
         Task UpdateFilmViewModel(Film film);
         Task<IEnumerable<Film>> GetAll();
-        Task<PagedResult<Film>> GetFilm(string name, string page);
+        Task<PagedResult<Film>> GetFilm(string name, string page, IEnumerable<Film> films);
     }
 }

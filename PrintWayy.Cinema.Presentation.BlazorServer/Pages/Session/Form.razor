@@ -1,0 +1,101 @@
+@inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
+
+<EditForm Model="@session" OnSubmit="@OnValidSubmit">
+    <FluentValidator TValidator="SessionValidator" />
+    <div class="form-group">
+        <label>Data:</label>
+        <div>
+            <InputDate @bind-Value="@session.Date" class="form-control col-sm-3" />
+            <ValidationMessage For="@(() => session.Date)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Hora de início:</label>
+        <div>
+            <InputText @bind-Value="@session.StartTime" class="form-control col-sm-3" />
+            <ValidationMessage For="@(() => session.StartTime)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Valor:</label>
+        <div>
+            <InputNumber @bind-Value="@session.EntryValue" class="form-control col-sm-3" />
+            <ValidationMessage For="@(() => session.EntryValue)" />
+        </div>
+    </div>
+    <div class="form-group ">
+        <label>Animação</label>
+        <div>
+            <InputSelect class="form-select" @bind-Value="session.AnimationType">
+                <option value="TwoDimensions">2D</option>
+                <option value="ThreeDimensions">3D</option>
+            </InputSelect>
+        </div>
+    </div>
+    <div class="form-group ">
+        <label>Audio:</label>
+        <div>
+            <InputSelect class="form-select" @bind-Value="session.AudioType">
+                <option value="Dubbed">Dublado</option>
+                <option value="Original">Original</option>
+            </InputSelect>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Filme:</label>
+            <InputSelect class="form-select" @bind-Value="session.FilmId">
+                @foreach (var film in films)
+                {
+                    <option value="@film.Id">@film.Title</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <div class="form-group ">
+        <label>Sala:</label>
+        <div>
+            <InputSelect class="form-select" @bind-Value="session.RoomName">
+                @foreach (var room in rooms)
+                {
+                    <option value="@room.Name">@room.Name</option>
+                }
+            </InputSelect>
+        </div>
+    </div>
+    <hr />
+
+    <div class="form-group">
+        <button disabled="@loading" class="btn btn-primary">
+            @if (loading)
+            {
+                <span class="spinner-border spinner-border-sm mr-1"></span>
+            }
+            @ButtonText
+        </button>
+        @if (PageHistoryState.CanGoBack())
+        {
+            <NavLink href="@PageHistoryState.GetGoBackPage()" class="btn btn-link">Cancelar</NavLink>
+        }
+        else
+        {
+            <NavLink href="/film/1" class="btn btn-link">Voltar</NavLink>
+        }
+    </div>
+
+</EditForm>
+
+@code {
+    [Parameter]
+    public Session session { get; set; }
+    [Parameter]
+    public IEnumerable<Film> films { get; set; }
+    [Parameter]
+    public List<PrintWayy.Cinema.Domain.Models.Room> rooms { get; set; }
+    [Parameter]
+    public string ButtonText { get; set; } = "Cadastrar";
+    [Parameter]
+    public bool loading { get; set; } = false;
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+}

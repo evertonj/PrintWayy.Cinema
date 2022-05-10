@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PrintWayy.Cinema.Domain.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace PrintWayy.Cinema.Service.Api.Models
 {
     public class FilmDataModel
     {
+        public Guid Id { get; set; }
         [Required]
         public string Title { get;  set; }
         [Required]
@@ -11,6 +13,6 @@ namespace PrintWayy.Cinema.Service.Api.Models
         [Required]
         public string Duration { get; init; } = $"{DateTime.Now:HH:mm:ss}";
         [Required]
-        public IFormFile Image { get; set; }
+        public ImageData ImageBase64 { get; set; }
     }
 }
