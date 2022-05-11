@@ -35,7 +35,7 @@
             get { return _imageData; }
             private set
             {
-                if (Convert.FromBase64String(value?.ImageBase64) == null)
+                if (string.IsNullOrEmpty(value?.ImageBase64))
                     throw new ArgumentException(DeveConterUmaImageNoFormatoStringBase64);
                 _imageData = value;
             }

@@ -24,20 +24,6 @@ namespace PrintWayy.Cinema.Domain.Test
             sessionHandler = new SessionHandler(sessionRepository,filmRepository);
         }
 
-        [Fact]
-        public void DataSessaoInvalida()
-        {
-            //arrange
-            createSession.Date = DateTime.Now.AddDays(-2);
-            var film = ObjectMother.FilmObject;
-            filmRepository.Update(film);
-            createSession.FilmId = film.Id;
-            //act
-            var result = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
-            //assert
-            result.ErrorMessage.Should().Be(Session.DataSessaoInvalida);
-        }
-
 
         [Fact]
         public void ValorSessaoInvalido()

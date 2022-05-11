@@ -26,17 +26,7 @@ namespace PrintWayy.Cinema.Domain.Test
             sessionHandler = new SessionHandler(sessionRepository, filmRepository);
         }
 
-        [Fact]
-        public void DeveConterUmCaminhoDeImagemValido()
-        {
-            //arrange
-            var createRequest = createFilm;
-            //act
-            var result = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
-            //assert
-            result.ErrorMessage.Should().Be(Film.DeveConterUmaImageNoFormatoStringBase64);
-        }
-
+    
         [Fact]
         public void DeveInformarTitulo()
         {
