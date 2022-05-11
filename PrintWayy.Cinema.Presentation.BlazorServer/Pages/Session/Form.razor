@@ -12,7 +12,7 @@
     <div class="form-group">
         <label>Hora de início:</label>
         <div>
-            <InputText @bind-Value="@session.StartTime" class="form-control col-sm-3" />
+            <InputText @bind-Value="@session.StartTime" type="time" class="form-control col-sm-3" />
             <ValidationMessage For="@(() => session.StartTime)" />
         </div>
     </div>

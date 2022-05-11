@@ -63,8 +63,8 @@ namespace PrintWayy.Cinema.Domain.Handlers
                     StartTime = session.StartTime.ToString(Film.DURATION_PATTERN),
                     AnimationType = session.AnimationType,
                     AudioType = session.AudioType,
-                    Film = session.Film,
-                    Room = session.Room,
+                    FilmId = session.Film.Id,
+                    RoomName = session.Room.Name,
                     EndTime = session.EndTime,
                     EntryValue = session.EntryValue,
                 });

@@ -26,17 +26,7 @@
         }
 
         public Guid Id { get; private set; }
-        private DateTime _date;
-        public DateTime Date
-        {
-            get { return _date; }
-            private set
-            {
-                if (value <= DateTime.Now)
-                    throw new Exception(DataSessaoInvalida);
-                _date = value;
-            }
-        }
+        public DateTime Date { get; set; }
         public TimeSpan StartTime { get; private set; }
         public TimeSpan EndTime { get; private set; }
         private decimal _entryValue;

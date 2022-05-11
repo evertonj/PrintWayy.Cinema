@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintWayy.Cinema.Domain.Commands.Requests.Film;
 using PrintWayy.Cinema.Domain.Interfaces;
@@ -7,6 +8,7 @@ using PrintWayy.Cinema.Service.Api.Models;
 namespace PrintWayy.Cinema.Service.Api.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     [ApiController]
     public class FilmController : ControllerBase
     {
@@ -19,6 +21,7 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             try
@@ -32,6 +35,7 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public IActionResult Get(Guid id)
         {
             try

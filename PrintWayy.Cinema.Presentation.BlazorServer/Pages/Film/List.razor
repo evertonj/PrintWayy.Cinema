@@ -1,6 +1,7 @@
 @page "/film/{Page}"
 @inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
 @inject IFilmService FilmeService
+@inject IUserService UserService
 @inject IAlertService AlertService
 @inject NavigationManager navManager
 @inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
@@ -10,7 +11,10 @@
 
 <div class="row mb-3">
     <div class="col-md-7">
-        <NavLink href="/film/create" class="btn btn-sm btn-success mb-2">Cadastrar Filme</NavLink>
+        @if (LoggedIn)
+        {
+            <NavLink href="/film/create" class="btn btn-sm btn-success mb-2">Cadastrar Filme</NavLink>
+        }
     </div>
     <div class="col-md-7">
     </div>
@@ -54,20 +58,27 @@ else
                     <td>@filmViewModel.Description</td>
                     <td>@filmViewModel.Duration</td>
                     <td style="white-space: nowrap"><NavLink href="@($"/film/view/{filmViewModel.Id}")" class="oi oi-eye text-primary"></NavLink></td>
-                    <td style="white-space: nowrap"><NavLink href="@($"/film/update/{filmViewModel.Id}")" class="oi oi-pencil text-warning"></NavLink></td>
                     <td style="white-space: nowrap">
-
-                        @if (filmViewModel.IsDeleting)
+                        @if (LoggedIn)
                         {
-                            <button @onclick="@(() => DeleteFilmViewModel(filmViewModel))" disabled="@filmViewModel.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
-                                <span class="spinner-border spinner-border-sm"></span>
-                            </button>
+                            <NavLink href="@($"/film/update/{filmViewModel.Id}")" class="oi oi-pencil text-warning"></NavLink>
                         }
-                        else
+                    </td>
+                    <td style="white-space: nowrap">
+                        @if (LoggedIn)
                         {
-                            <button @onclick="@(() => DeleteFilmViewModel(filmViewModel))" disabled="@filmViewModel.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
-                                <span></span>
-                            </button>
+                            @if (filmViewModel.IsDeleting)
+                            {
+                                <button @onclick="@(() => DeleteFilmViewModel(filmViewModel))" disabled="@filmViewModel.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button @onclick="@(() => DeleteFilmViewModel(filmViewModel))" disabled="@filmViewModel.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
+                                    <span></span>
+                                </button>
+                            }
                         }
                     </td>
                 </tr>
@@ -84,6 +95,10 @@ else
     public string SearchTerm { get; set; } = string.Empty;
     protected PagedResult<Film> film;
     private IEnumerable<Film> films = new List<Film>();
+    public bool LoggedIn
+    {
+        get { return UserService.User != null; }
+    }
 
     protected override void OnInitialized()
     {
@@ -120,9 +135,8 @@ else
 
     protected async Task ClearSearch()
     {
-        SearchTerm = string.Empty;
         films = await FilmeService.GetAll();
-        film = await FilmeService.GetFilm(SearchTerm, Page, films);
+        film = await FilmeService.GetFilm(null, Page, films);
         PageHistoryState.AddPageToHistory(UriHelper.Uri);
         StateHasChanged();
     }
@@ -135,11 +149,20 @@ else
 
     private async void DeleteFilmViewModel(Film _filmViewModel)
     {
-        var filmViewModel = _filmViewModel;
-        filmViewModel.IsDeleting = true;
-        await FilmeService.DeleteFilmViewModel(filmViewModel.Id);
-        films = await FilmeService.GetAll();
-        film = await FilmeService.GetFilm(null, Page, films);
+        try
+        {
+            _filmViewModel.IsDeleting = true;
+            await FilmeService.DeleteFilmViewModel(_filmViewModel.Id);
+            AlertService.Success("Filme removido com sucesso!");
+            films = await FilmeService.GetAll();
+            film = await FilmeService.GetFilm(null, Page, films);
+        }
+        catch (Exception ex)
+        {
+            AlertService.Error(ex.Message);
+            _filmViewModel.IsDeleting = false;
+        }
+
         StateHasChanged();
     }
 }

@@ -1,12 +1,15 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PrintWayy.Cinema.Domain.Commands.Requests.Session;
 using PrintWayy.Cinema.Domain.Interfaces;
+using PrintWayy.Cinema.Domain.Models;
 using PrintWayy.Cinema.Service.Api.Models;
 
 namespace PrintWayy.Cinema.Service.Api.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     [ApiController]
     public class SessionController : ControllerBase
     {
@@ -19,11 +22,28 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Get()
         {
             try
             {
-                return Ok(_sessionRepository.All());
+                var listOfSessionResult = new List<SessionDataModel>();
+                foreach (var session in _sessionRepository.All())
+                {
+                    var sessionResult = new SessionDataModel
+                    {
+                        AnimationType = session.AnimationType,
+                        AudioType = session.AudioType,
+                        Date = session.Date,
+                        EntryValue = session.EntryValue,
+                        FilmId = session.Film.Id,
+                        Id = session.Id,
+                        RoomName = session.Room.Name,
+                        StartTime = session.StartTime.ToString(Film.DURATION_PATTERN)
+                    };
+                    listOfSessionResult.Add(sessionResult);
+                }
+                return Ok(listOfSessionResult);
             }
             catch (Exception ex)
             {
@@ -32,6 +52,7 @@ namespace PrintWayy.Cinema.Service.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public IActionResult Get(Guid id)
         {
             try

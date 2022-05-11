@@ -1,35 +1,41 @@
 @page "/session/{Page}"
 @inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
 @inject IFilmService FilmeService
+@inject IUserService UserService
+@inject ISessionService SessionService
+@inject IRoomService RoomService
 @inject IAlertService AlertService
 @inject NavigationManager navManager
 @inject PrintWayy.Cinema.Presentation.BlazorServer.Shared.PageHistoryState PageHistoryState
 
-<h1>Filmes</h1>
+<h1>Sessões</h1>
 <br />
 
 <div class="row mb-3">
     <div class="col-md-7">
-        <NavLink href="/film/create" class="btn btn-sm btn-success mb-2">Cadastrar Filme</NavLink>
+        @if (LoggedIn)
+        {
+            <NavLink href="/session/create" class="btn btn-sm btn-success mb-2">Cadastrar Sessão</NavLink>
+        }
     </div>
     <div class="col-md-7">
     </div>
     <div class="input-group col-md-5 text-md-right">
-        <input name="FilmViewModelSearchInput" type="text" class="form-control" placeholder="Título" @bind="this.SearchTerm" @onkeyup="SearchBoxKeyPress" />
+        <input name="sessionModelSearchInput" type="date" class="form-control" @bind="this.SearchTerm" @onkeyup="SearchBoxKeyPress" />
         <div class="input-group-btn">
-            <button name="FilmViewModelSearchButton" class="btn btn-default" @onclick="SearchClick">
+            <button name="sessionModelSearchInput" class="btn btn-default" @onclick="SearchClick">
                 <i class="oi oi-magnifying-glass" title="search" aria-hidden="true"></i>
             </button>
         </div>
         <div class="input-group-btn">
-            <button name="FilmViewModelSearchClear" class="btn btn-default" @onclick="ClearSearch">
+            <button name="sessionModelSearchClear" class="btn btn-default" @onclick="ClearSearch">
                 <i class="oi oi-x" title="clear" aria-hidden="true"></i>
             </button>
         </div>
     </div>
 </div>
 
-@if (film == null)
+@if (session == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -38,63 +44,76 @@ else
     <table class="table table-striped">
         <thead>
             <tr>
-                <th style="width:25%">Título</th>
-                <th style="width:25%">Descrição</th>
-                <th style="width:20%">Duração</th>
-                <th style="width:10%">Imagem</th>
-                <th style="width:10%"></th>
-                <th style="width:10%"></th>
+                <th style="width:15%">Data</th>
+                <th style="width:10%">Hora de Início</th>
+                <th style="width:15%">Animação</th>
+                <th style="width:15%">Audio</th>
+                <th style="width:10%">Valor</th>
+                <th style="width:20%">Filme</th>
+                <th style="width:10%">Sala</th>
+                <th style="width:5%"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var filmViewModel in film?.Results)
+            @foreach (var session in session?.Results)
             {
                 <tr>
-                    <td>@filmViewModel.Title</td>
-                    <td>@filmViewModel.Description</td>
-                    <td>@filmViewModel.Duration</td>
-                    <td style="white-space: nowrap"><NavLink href="@($"/film/view/{filmViewModel.Id}")" class="oi oi-eye text-primary"></NavLink></td>
-                    <td style="white-space: nowrap"><NavLink href="@($"/film/update/{filmViewModel.Id}")" class="oi oi-pencil text-warning"></NavLink></td>
+                    <td>@session.Date.ToShortDateString()</td>
+                    <td>@session.StartTime</td>
+                    <td>@session.AnimationType.GetDescription()</td>
+                    <td>@session.AudioType.GetDescription()</td>
+                    <td>@session.EntryValue</td>
+                    <td>@films.FirstOrDefault(_=>_.Id == session.FilmId)?.Title</td>
+                    <td>@rooms.Find(_=>_.Name == session.RoomName)?.Name</td>
                     <td style="white-space: nowrap">
-
-                        @if (filmViewModel.IsDeleting)
+                        @if (LoggedIn)
                         {
-                            <button @onclick="@(() => DeleteFilmViewModel(filmViewModel))" disabled="@filmViewModel.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
-                                <span class="spinner-border spinner-border-sm"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            <button @onclick="@(() => DeleteFilmViewModel(filmViewModel))" disabled="@filmViewModel.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
-                                <span></span>
-                            </button>
+                            @if (session.IsDeleting)
+                            {
+                                <button @onclick="@(() => DeleteSession(session))" disabled="@session.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                </button>
+                            }
+                            else
+                            {
+                                <button @onclick="@(() => DeleteSession(session))" disabled="@session.IsDeleting" class=" btn btn-link oi oi-trash text-danger">
+                                    <span></span>
+                                </button>
+                            }
                         }
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    <Pager Result=@film PageChanged=PagerPageChanged />
+    <Pager Result=@session PageChanged=PagerPageChanged />
 }
 
 @code {
     [Parameter]
     public string Page { get; set; } = "1";
     [Parameter]
-    public string SearchTerm { get; set; } = string.Empty;
-    protected PagedResult<Film> film;
-    private IEnumerable<Film> films = new List<Film>();
-
-    protected override void OnInitialized()
+    public DateTime SearchTerm { get; set; } = DateTime.Now;
+    protected PagedResult<Session> session;
+    protected IEnumerable<Film> films = new List<Film>();
+    protected IEnumerable<Session> sessions = new List<Session>();
+    protected List<Domain.Models.Room> rooms = new List<Domain.Models.Room>();
+    public bool LoggedIn
     {
+        get { return UserService.User != null; }
+    }
+    protected async override void OnInitialized()
+    {
+        films = await FilmeService.GetAll();
+        rooms = await RoomService.GetAll();
         PageHistoryState.AddPageToHistory(UriHelper.Uri);
         base.OnInitialized();
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        films = await FilmeService.GetAll();
-        film = await FilmeService.GetFilm(null, Page, films);
+        sessions = await SessionService.GetAll();
+        session = await SessionService.GetSessionByDay(null, Page, sessions);
         PageHistoryState.AddPageToHistory(UriHelper.Uri);
     }
 
@@ -108,38 +127,47 @@ else
 
     protected async Task SearchClick()
     {
-        films = await FilmeService.GetAll();
-        if (string.IsNullOrEmpty(SearchTerm))
+        sessions = await SessionService.GetAll();
+        if (SearchTerm == DateTime.Now)
         {
-            film = await FilmeService.GetFilm(null, Page, films);
+            session = await SessionService.GetSessionByDay(null, Page, sessions);
             return;
         }
-        film = await FilmeService.GetFilm(SearchTerm, Page, films);
+        session = await SessionService.GetSessionByDay(SearchTerm, Page, sessions);
         StateHasChanged();
     }
 
     protected async Task ClearSearch()
     {
-        SearchTerm = string.Empty;
-        films = await FilmeService.GetAll();
-        film = await FilmeService.GetFilm(SearchTerm, Page, films);
+        SearchTerm = DateTime.Now;
+        sessions = await SessionService.GetAll();
+        session = await SessionService.GetSessionByDay(null, Page, sessions);
         PageHistoryState.AddPageToHistory(UriHelper.Uri);
         StateHasChanged();
     }
 
     protected void PagerPageChanged(int page)
     {
-        UriHelper.NavigateTo("/film/" + page);
+        UriHelper.NavigateTo("/session/" + page);
         PageHistoryState.AddPageToHistory(UriHelper.Uri);
     }
 
-    private async void DeleteFilmViewModel(Film _filmViewModel)
+    private async void DeleteSession(Session _session)
     {
-        var filmViewModel = _filmViewModel;
-        filmViewModel.IsDeleting = true;
-        await FilmeService.DeleteFilmViewModel(filmViewModel.Id);
-        films = await FilmeService.GetAll();
-        film = await FilmeService.GetFilm(null, Page, films);
+        try
+        {
+            _session.IsDeleting = true;
+            await SessionService.RemoveSession(_session.Id);
+            AlertService.Success("Sessão removida com sucesso!");
+            sessions = await SessionService.GetAll();
+            session = await SessionService.GetSessionByDay(null, Page, sessions);
+        }
+        catch (Exception ex)
+        {
+            AlertService.Error(ex.Message);
+            _session.IsDeleting = false;
+        }
+
         StateHasChanged();
     }
 }

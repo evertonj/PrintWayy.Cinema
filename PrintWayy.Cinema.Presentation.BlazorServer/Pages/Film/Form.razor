@@ -19,7 +19,7 @@
     <div class="form-group">
         <label>Duração :</label>
         <div>
-            <InputText @bind-Value="@filmViewModel.Duration" class="form-control col-sm-3" placeholder="00:00:00" />
+            <InputText @bind-Value="@filmViewModel.Duration" type="time" class="form-control col-sm-3"/>
             <ValidationMessage For="@(() => filmViewModel.Duration)" />
         </div>
     </div>

@@ -116,7 +116,7 @@ namespace PrintWayy.Cinema.Domain.Test
             //arrange
             createSession.FilmId = filmRepository.Create(ObjectMother.FilmObject).Id;
             var response = sessionHandler.Handle(createSession, new System.Threading.CancellationToken()).Result;
-            var deleteRequest = new DeleteFilmRequest() { Id = response.Film.Id };
+            var deleteRequest = new DeleteFilmRequest() { Id = response.FilmId };
             //act
             var result = filmHandler.Handle(deleteRequest, new System.Threading.CancellationToken()).Result;
             //assert
@@ -180,7 +180,7 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateDeveInformarDuracao()
         {
             //arrange
-            var createRequest = createFilm; 
+            var createRequest = createFilm;
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImageBase64 = ObjectMother.ImageDataObject, Title = "O jogo da imitação 2", Description = "Conhecer a história do pai da informática é essencial" };
             //act
@@ -193,7 +193,7 @@ namespace PrintWayy.Cinema.Domain.Test
         public void UpdateFilmeSucesso()
         {
             //arrange
-            var createRequest = createFilm; 
+            var createRequest = createFilm;
             var createResponse = filmHandler.Handle(createRequest, new System.Threading.CancellationToken()).Result;
             var updateRequest = new UpdateFilmRequest() { Id = createResponse.Id, ImageBase64 = ObjectMother.ImageDataObject, Title = "O jogo da imitação 3", Description = "Conhecer a história do pai da informática é essencial", Duration = new TimeSpan(1, 58, 22).ToString(Film.DURATION_PATTERN) };
             //act

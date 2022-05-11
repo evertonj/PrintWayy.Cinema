@@ -68,11 +68,11 @@ namespace PrintWayy.Cinema.Domain.Test
             result.Date.Should().Be(createSession.Date);
             result.StartTime.Should().Be(createSession.StartTime);
             result.EndTime.Should().Be(session.EndTime);
-            result.Film.Id.Should().Be(createSession.FilmId);
+            result.FilmId.Should().Be(createSession.FilmId);
             result.EntryValue.Should().Be(createSession.EntryValue);
             result.AudioType.Should().Be(createSession.AudioType);
             result.AnimationType.Should().Be(createSession.AnimationType);
-            result.Room.Name.Should().Be(createSession.RoomName);
+            result.RoomName.Should().Be(createSession.RoomName);
         }
 
         [Fact]

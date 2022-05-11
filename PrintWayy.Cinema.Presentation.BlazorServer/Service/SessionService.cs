@@ -1,5 +1,6 @@
 ﻿using PrintWayy.Cinema.Presentation.BlazorServer.Models;
 using PrintWayy.Cinema.Presentation.BlazorServer.Service.Interfaces;
+using PrintWayy.Cinema.Presentation.BlazorServer.Shared;
 
 namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
 {
@@ -19,12 +20,29 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
 
         public Task<IEnumerable<Session>> GetAll()
         {
-            return Task.FromResult(_httpService.Get<IEnumerable<Session>>("api/v1/Session"));
+            return _httpService.Get<IEnumerable<Session>>("api/v1/Session");
         }
 
         public async Task RemoveSession(Guid id)
         {
             await _httpService.Delete<Session>($"api/v1/Session/{id}");
+        }
+
+        public async Task<PagedResult<Session>> GetSessionByDay(DateTime? day, string page, IEnumerable<Session> sessions)
+        {
+            int pageSize = 5;
+
+            if (day != null)
+            {
+                var paged = sessions.Where(p => p.Date.ToShortDateString() == day.Value.ToShortDateString())
+                    .GetPaged(int.Parse(page), pageSize);
+                return await Task.FromResult(paged);
+            }
+            else
+            {
+                var paged = sessions.GetPaged(int.Parse(page), pageSize);
+                return await Task.FromResult(paged);
+            }
         }
     }
 }

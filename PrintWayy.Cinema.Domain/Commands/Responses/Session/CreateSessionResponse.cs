@@ -11,7 +11,7 @@ namespace PrintWayy.Cinema.Domain.Commands.Responses.Session
         public decimal EntryValue { get; set; }
         public AnimationType AnimationType { get; set; }
         public AudioType AudioType { get; set; }
-        public Models.Film Film { get; set; }
-        public Room Room { get; set; }
+        public Guid FilmId { get; set; }
+        public string RoomName { get; set; }
     }
 }

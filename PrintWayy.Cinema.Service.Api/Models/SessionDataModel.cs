@@ -5,6 +5,7 @@ namespace PrintWayy.Cinema.Service.Api.Models
 {
     public class SessionDataModel
     {
+        public Guid Id { get; set; }
         [Required]
         public DateTime Date { get; set; }
         [Required]

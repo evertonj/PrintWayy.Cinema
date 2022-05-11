@@ -24,7 +24,7 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
 
         public Task<Film> GetFilmViewModel(Guid id)
         {
-            return Task.FromResult(_httpService.Get<Film>($"api/v1/Film/{id}"));
+            return _httpService.Get<Film>($"api/v1/Film/{id}");
         }
 
         public async Task UpdateFilmViewModel(Film film)
@@ -34,7 +34,7 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
         
         public Task<IEnumerable<Film>> GetAll()
         {
-            return Task.FromResult(_httpService.Get<IEnumerable<Film>>("api/v1/Film"));
+            return _httpService.Get<IEnumerable<Film>>("api/v1/Film");
         }
 
         public async Task<PagedResult<Film>> GetFilm(string name, string page, IEnumerable<Film> films)

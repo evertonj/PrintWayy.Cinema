@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using PrintWayy.Cinema.Domain.Models;
 using PrintWayy.Cinema.Presentation.BlazorServer.Shared;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -8,7 +10,7 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
 {
     public interface IHttpService
     {
-        T Get<T>(string uri);
+        Task<T> Get<T>(string uri);
         Task Post(string uri, object value);
         Task<T> Post<T>(string uri, object value);
         Task Put(string uri, object value);
@@ -21,20 +23,22 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
     {
         private HttpClient _httpClient;
         private NavigationManager _navigationManager;
-
+        private ILocalStorageService _localStorageService;
         public HttpService(
             HttpClient httpClient,
-            NavigationManager navigationManager
+            NavigationManager navigationManager,
+            ILocalStorageService localStorageService
         )
         {
+            _localStorageService = localStorageService;
             _httpClient = httpClient;
             _navigationManager = navigationManager;
         }
 
-        public T Get<T>(string uri)
+        public async Task<T> Get<T>(string uri)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            return sendRequest<T>(request).Result;
+            return await sendRequest<T>(request);
         }
 
         public async Task Post(string uri, object value)
@@ -88,6 +92,9 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
 
         private async Task sendRequest(HttpRequestMessage request)
         {
+            //Add token
+            await addJwtHeader(request);
+
             // send request
             using var response = await _httpClient.SendAsync(request);
 
@@ -103,8 +110,11 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
 
         private async Task<T> sendRequest<T>(HttpRequestMessage request)
         {
+            //add token
+            await addJwtHeader(request);
+
             // send request
-            using var response = await _httpClient.SendAsync(request,HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
             // auto logout on 401 response
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -118,7 +128,17 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
             var options = new JsonSerializerOptions();
             options.PropertyNameCaseInsensitive = true;
             options.Converters.Add(new StringConverter());
+
             return await response.Content.ReadFromJsonAsync<T>(options).ConfigureAwait(false);
+        }
+
+        private async Task addJwtHeader(HttpRequestMessage request)
+        {
+            // add jwt auth header if user is logged in and request is to the api url
+            var user = await _localStorageService.GetItem<AuthenticateData>("user");
+            var isApiUrl = !request.RequestUri.IsAbsoluteUri;
+            if (user != null && isApiUrl)
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", user.Token);
         }
 
         private async Task handleErrors(HttpResponseMessage response)
@@ -126,8 +146,8 @@ namespace PrintWayy.Cinema.Presentation.BlazorServer.Service
             // throw exception on error response
             if (!response.IsSuccessStatusCode)
             {
-                var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                throw new Exception(error["message"]);
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
             }
         }
     }
