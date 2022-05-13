@@ -21,7 +21,7 @@ namespace PrintWayy.Cinema.Domain.Validations
                 var sameDate = session.Date.ToString("d") == date.ToString("d");
                 var betweenStartTime = startTime >= session.StartTime && startTime <= session.EndTime;
                 var betweenEndTime = endTime >= session.StartTime && endTime <= session.EndTime;
-                if (sameRoom && sameDate && betweenStartTime && betweenEndTime)
+                if (sameRoom && sameDate && (betweenStartTime || betweenEndTime))
                 {
                     return true;
                 }
